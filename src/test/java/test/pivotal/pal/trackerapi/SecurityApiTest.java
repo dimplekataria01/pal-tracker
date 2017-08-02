@@ -24,6 +24,8 @@ public class SecurityApiTest {
     private String port;
     private TestRestTemplate authorizedRestTemplate;
 
+    private TestRestTemplate restTemplate;
+
     @Autowired
     private TestRestTemplate unAuthorizedRestTemplate;
 
@@ -49,4 +51,5 @@ public class SecurityApiTest {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
+
 }

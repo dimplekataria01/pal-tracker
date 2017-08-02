@@ -8,8 +8,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mariadb.jdbc.MariaDbDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.embedded.LocalServerPort;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -30,16 +32,27 @@ public class TimeEntryApiTest {
 
     @Autowired
     private TestRestTemplate restTemplate;
+    @LocalServerPort
+    private String port;
+
 
     private TimeEntry timeEntry = new TimeEntry(123, 456, "today", 8);
 
     @Before
     public void setUp() throws Exception {
+        RestTemplateBuilder builder = new RestTemplateBuilder()
+                .rootUri("http://localhost:" + port)
+                .basicAuthorization("user", "password");
+
+        restTemplate = new TestRestTemplate(builder);
         DataSource dataSource = new MariaDbDataSource(System.getenv("SPRING_DATASOURCE_URL"));
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
         jdbcTemplate.execute("TRUNCATE time_entries");
+
     }
+
+
 
     @Test
     public void testCreate() throws Exception {
@@ -128,4 +141,5 @@ public class TimeEntryApiTest {
     private Long createTimeEntry() {
         return restTemplate.postForObject("/time-entries", timeEntry, TimeEntry.class).getId();
     }
+
 }
